@@ -13,8 +13,12 @@ import logging
 from buffalo_crawler import BuffaloNewsCrawler
 from iqm_crawler import IQMNewsCrawler
 from sciencedaily_crawler import ScienceDailyCrawler
+from buffalo_rss_crawler import BuffaloRSSCrawler
+from iqm_rss_crawler import IQMRSSCrawler
+from sciencedaily_rss_crawler import ScienceDailyRSSCrawler
 from translator import NewsTranslator
 from summarizer import ContentSummarizer
+from config import Config
 
 # 配置日志
 logging.basicConfig(
@@ -32,16 +36,28 @@ logger = logging.getLogger(__name__)
 class NewsAggregator:
     """新闻聚合器，整合所有爬虫"""
 
-    def __init__(self, output_dir='output', enable_translation=True, enable_summary=True):
+    def __init__(self, output_dir='output', enable_translation=True, enable_summary=True, use_rss=None):
         self.output_dir = output_dir
         self.enable_translation = enable_translation
         self.enable_summary = enable_summary
 
-        self.crawlers = [
-            BuffaloNewsCrawler(),
-            IQMNewsCrawler(),
-            ScienceDailyCrawler()
-        ]
+        # 根据配置选择使用 RSS 爬虫或 HTML 爬虫
+        use_rss = use_rss if use_rss is not None else Config.RSS_ENABLED
+
+        if use_rss:
+            logger.info("使用 RSS 爬虫（带 HTML 回退）")
+            self.crawlers = [
+                BuffaloRSSCrawler(),
+                IQMRSSCrawler(),
+                ScienceDailyRSSCrawler()
+            ]
+        else:
+            logger.info("使用 HTML 爬虫")
+            self.crawlers = [
+                BuffaloNewsCrawler(),
+                IQMNewsCrawler(),
+                ScienceDailyCrawler()
+            ]
 
         # 初始化翻译器和摘要器
         if self.enable_translation:
@@ -90,7 +106,11 @@ class NewsAggregator:
         # 依次运行所有爬虫
         for crawler in self.crawlers:
             try:
-                news = crawler.get_yesterday_news(target_date)
+                # RSS 爬虫使用 get_news_with_fallback，HTML 爬虫使用 get_yesterday_news
+                if hasattr(crawler, 'get_news_with_fallback'):
+                    news = crawler.get_news_with_fallback(target_date)
+                else:
+                    news = crawler.get_yesterday_news(target_date)
                 all_news.extend(news)
             except Exception as e:
                 logger.error(f"爬虫 {crawler.__class__.__name__} 执行失败: {e}")
@@ -220,6 +240,11 @@ def main():
         action='store_true',
         help='禁用内容摘要功能'
     )
+    parser.add_argument(
+        '--no-rss',
+        action='store_true',
+        help='禁用 RSS 采集，仅使用 HTML 爬虫'
+    )
 
     args = parser.parse_args()
 
@@ -238,7 +263,8 @@ def main():
     aggregator = NewsAggregator(
         output_dir=args.output,
         enable_translation=not args.no_translate,
-        enable_summary=not args.no_summary
+        enable_summary=not args.no_summary,
+        use_rss=not args.no_rss
     )
     result = aggregator.crawl_yesterday_news(target_date)
 

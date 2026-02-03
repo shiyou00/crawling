@@ -3,9 +3,11 @@
 内容摘要模块 - 获取新闻全文并生成摘要
 """
 import logging
-import requests
 from bs4 import BeautifulSoup
 import re
+
+from request_manager import RequestManager
+from exceptions import RequestError
 
 logger = logging.getLogger(__name__)
 
@@ -14,10 +16,8 @@ class ContentSummarizer:
 
     def __init__(self):
         """初始化摘要器"""
-        self.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-        logger.info("摘要器初始化成功")
+        self.request_manager = RequestManager()
+        logger.info("摘要器初始化成功（使用 RequestManager）")
 
     def fetch_content(self, url, timeout=30):
         """
@@ -31,14 +31,16 @@ class ContentSummarizer:
             新闻正文内容
         """
         try:
-            response = requests.get(url, headers=self.headers, timeout=timeout)
-            response.raise_for_status()
+            response = self.request_manager.get(url)
             soup = BeautifulSoup(response.content, 'html.parser')
 
             # 根据不同网站提取内容
             content = self._extract_content_by_site(url, soup)
             return content
 
+        except RequestError as e:
+            logger.error(f"获取内容失败 {url}: {e}")
+            return ""
         except Exception as e:
             logger.error(f"获取内容失败 {url}: {e}")
             return ""
