@@ -1,0 +1,23 @@
+# Phys.org - 量子物理新闻
+name: "Phys.org"
+enabled: true
+type: rss
+
+rss:
+  urls:
+    - "https://phys.org/rss-feed/physics-news/quantum-physics/"
+
+# HTML 回退配置
+html:
+  url: "https://phys.org/physics-news/quantum-physics/"
+  selectors:
+    container: "article.news-item"
+    title: "h3.news-title a"
+    link: "h3.news-title a"
+    date: "p.news-date"
+  date:
+    format: "%b %d, %Y"
+
+content:
+  selector: "article.news-content"
+  paragraph_selector: "p"

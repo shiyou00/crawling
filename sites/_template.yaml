@@ -1,0 +1,79 @@
+# 站点配置模板
+# 复制此文件到 sites/ 目录，重命名为 your_site.yaml
+
+# 基本信息
+name: "站点名称"
+enabled: true
+type: rss  # 可选: rss 或 html
+
+# ========== RSS 配置（推荐）==========
+# 如果网站有 RSS feed，优先使用 RSS
+rss:
+  urls:
+    - "https://example.com/feed.xml"
+    - "https://example.com/rss/category.xml"  # 可以添加多个
+
+# ========== HTML 配置 ==========
+# 当 RSS 不可用或作为回退方案
+html:
+  url: "https://example.com/news/"
+
+  # CSS 选择器
+  selectors:
+    # 新闻容器（每条新闻的外层元素）
+    container: "div.news-item, article.post"
+
+    # 标题选择器（相对于 container）
+    title: "h2.title a, h3 a"
+
+    # 链接选择器（相对于 container）
+    link: "a.read-more, h2 a"
+
+    # 日期选择器（可选，相对于 container）
+    date: "span.date, time"
+
+    # 摘要选择器（可选，相对于 container）
+    summary: "p.excerpt, .summary"
+
+  # 日期解析配置
+  date:
+    selector: "span.date"  # 或设为 null 使用通用选择器
+    format: "%Y-%m-%d"     # Python strptime 格式
+    # 常见格式:
+    # - %Y-%m-%d      → 2025-12-25
+    # - %b %d, %Y     → Dec 25, 2025
+    # - %m/%d/%y      → 12/25/25
+    # - %d %b %Y      → 25 Dec 2025
+    pattern: null  # 可选：正则表达式提取日期
+
+  # 链接前缀（用于补全相对链接）
+  link_prefix: "https://example.com"
+
+# ========== 内容提取配置（用于生成摘要）==========
+content:
+  selector: "article, div.content"
+  paragraph_selector: "p"
+  min_length: 50  # 过滤短段落
+
+# ========== 示例配置 ==========
+#
+# 1. RSS 优先站点（如 Science Daily）:
+#    type: rss
+#    rss:
+#      urls:
+#        - "https://www.sciencedaily.com/rss/matter_energy/quantum_physics.xml"
+#
+# 2. 纯 HTML 站点:
+#    type: html
+#    html:
+#      url: "https://example.com/news/"
+#      selectors:
+#        container: "article"
+#        title: "h2"
+#        link: "a"
+#
+# 3. 查找 CSS 选择器的方法:
+#    - 在浏览器中打开网页
+#    - 右键点击新闻标题 → 检查
+#    - 查看元素的 class 和结构
+#    - 使用 Chrome DevTools 的 "Copy selector" 功能

@@ -16,6 +16,7 @@ from sciencedaily_crawler import ScienceDailyCrawler
 from buffalo_rss_crawler import BuffaloRSSCrawler
 from iqm_rss_crawler import IQMRSSCrawler
 from sciencedaily_rss_crawler import ScienceDailyRSSCrawler
+from generic_crawler import SiteRegistry, create_crawlers_from_config
 from translator import NewsTranslator
 from summarizer import ContentSummarizer
 from config import Config
@@ -36,28 +37,38 @@ logger = logging.getLogger(__name__)
 class NewsAggregator:
     """新闻聚合器，整合所有爬虫"""
 
-    def __init__(self, output_dir='output', enable_translation=True, enable_summary=True, use_rss=None):
+    def __init__(self, output_dir='output', enable_translation=True, enable_summary=True, use_rss=None, use_config=False):
         self.output_dir = output_dir
         self.enable_translation = enable_translation
         self.enable_summary = enable_summary
 
-        # 根据配置选择使用 RSS 爬虫或 HTML 爬虫
-        use_rss = use_rss if use_rss is not None else Config.RSS_ENABLED
+        # 选择爬虫模式
+        if use_config:
+            # 配置驱动模式：从 sites/ 目录加载 YAML 配置
+            logger.info("使用配置驱动模式（从 sites/*.yaml 加载）")
+            self.crawlers = create_crawlers_from_config()
+            if not self.crawlers:
+                logger.warning("未找到有效配置，回退到传统爬虫")
+                use_config = False
 
-        if use_rss:
-            logger.info("使用 RSS 爬虫（带 HTML 回退）")
-            self.crawlers = [
-                BuffaloRSSCrawler(),
-                IQMRSSCrawler(),
-                ScienceDailyRSSCrawler()
-            ]
-        else:
-            logger.info("使用 HTML 爬虫")
-            self.crawlers = [
-                BuffaloNewsCrawler(),
-                IQMNewsCrawler(),
-                ScienceDailyCrawler()
-            ]
+        if not use_config:
+            # 传统模式：使用硬编码的爬虫
+            use_rss = use_rss if use_rss is not None else Config.RSS_ENABLED
+
+            if use_rss:
+                logger.info("使用 RSS 爬虫（带 HTML 回退）")
+                self.crawlers = [
+                    BuffaloRSSCrawler(),
+                    IQMRSSCrawler(),
+                    ScienceDailyRSSCrawler()
+                ]
+            else:
+                logger.info("使用 HTML 爬虫")
+                self.crawlers = [
+                    BuffaloNewsCrawler(),
+                    IQMNewsCrawler(),
+                    ScienceDailyCrawler()
+                ]
 
         # 初始化翻译器和摘要器
         if self.enable_translation:
@@ -245,6 +256,11 @@ def main():
         action='store_true',
         help='禁用 RSS 采集，仅使用 HTML 爬虫'
     )
+    parser.add_argument(
+        '--config',
+        action='store_true',
+        help='使用配置驱动模式（从 sites/*.yaml 加载站点配置）'
+    )
 
     args = parser.parse_args()
 
@@ -264,7 +280,8 @@ def main():
         output_dir=args.output,
         enable_translation=not args.no_translate,
         enable_summary=not args.no_summary,
-        use_rss=not args.no_rss
+        use_rss=not args.no_rss,
+        use_config=args.config
     )
     result = aggregator.crawl_yesterday_news(target_date)
 

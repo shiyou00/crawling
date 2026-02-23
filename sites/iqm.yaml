@@ -1,0 +1,20 @@
+# IQM - 新闻稿
+name: "IQM"
+enabled: true
+type: html  # 无有效 RSS
+
+html:
+  url: "https://meetiqm.com/company/press-releases/"
+  selectors:
+    container: "div[class*='press']"
+    title: "h2, h3"
+    link: "a"
+  date:
+    pattern: "\\d{1,2}\\s+[A-Za-z]+\\s+\\d{4}|\\d{1,2}\\s+[A-Za-z]+"  # 正则提取日期
+    format: "%d %b %Y"
+
+# 内容提取配置
+content:
+  selector: "div.elementor"
+  paragraph_selector: "p"
+  min_length: 50

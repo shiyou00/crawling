@@ -1,0 +1,20 @@
+# BBEU - Bio Base Europe 新闻
+name: "BBEU"
+enabled: true
+type: html
+
+html:
+  url: "https://www.bbeu.org/news/"
+  selectors:
+    container: "div.news_block"
+    title: "div.desc h5 a"
+    link: "div.desc h5 a"
+    date: "span.date_text"
+    summary: "div.desc p"
+  date:
+    selector: "span.date_text"
+    format: "%d.%m.%Y"  # 07.01.2026 格式
+
+content:
+  selector: "div.desc"
+  paragraph_selector: "p"

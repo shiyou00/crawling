@@ -1,0 +1,26 @@
+# Science Daily - 量子物理新闻
+name: "Science Daily"
+enabled: true
+type: rss  # rss 或 html
+
+# RSS 配置
+rss:
+  urls:
+    - "https://www.sciencedaily.com/rss/matter_energy/quantum_physics.xml"
+
+# HTML 回退配置（当 RSS 不可用时）
+html:
+  url: "https://www.sciencedaily.com/news/matter_energy/quantum_physics/"
+  selectors:
+    container: "div.col-md-6"
+    title: "a.latest-head"
+    link: "a.latest-head"
+    summary: "p.latest-summary"
+  date:
+    selector: null  # 从文章页面提取
+    format: "%b. %d, %Y"  # Dec. 6, 2025
+
+# 内容提取配置（用于摘要）
+content:
+  selector: "div#text"
+  paragraph_selector: "p"
