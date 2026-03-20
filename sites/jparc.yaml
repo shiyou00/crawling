@@ -1,0 +1,22 @@
+# J-PARC - 日本质子加速器研究中心新闻
+name: "J-PARC"
+enabled: true
+type: html
+
+# HTML 采集配置
+html:
+  url: "https://j-parc.jp/c/en/press-release/index.html"
+  link_prefix: "https://j-parc.jp/c/en/press-release/"
+  selectors:
+    container: "div.archive_wrap"
+    title: "p.title a"
+    link: "p.title a"
+    summary: ""
+  date:
+    selector: "p.date"
+    format: "%Y.%m.%d"
+
+# 文章内容选择器
+content:
+  selector: "div.main-contents"
+  paragraph_selector: "p"

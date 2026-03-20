@@ -1,0 +1,20 @@
+# QIH - Quantum Technology Innovation Hubs (RIKEN) 新闻
+name: "QIH"
+enabled: true
+type: html
+
+# HTML 采集配置
+html:
+  url: "https://qih.riken.jp/en/archive.html"
+  selectors:
+    container: "dl div"
+    title: "dd a"
+    link: "dd a"
+  date:
+    selector: "dt span"
+    format: "%d-%b-%y"
+
+# 文章内容选择器（外链为主，各站点结构不同）
+content:
+  selector: "article, main, .entry-content"
+  paragraph_selector: "p"

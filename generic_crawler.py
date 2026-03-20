@@ -219,12 +219,18 @@ class GenericCrawler:
             return None
 
         # Extract link
-        link_el = container.select_one(selectors.get('link', ''))
+        link_selector = selectors.get('link', '')
         link = ''
-        if link_el:
-            link = link_el.get('href', '')
-            if link and self.config.link_prefix and not link.startswith('http'):
-                link = self.config.link_prefix + link
+        if link_selector:
+            link_el = container.select_one(link_selector)
+            if link_el:
+                link = link_el.get('href', '')
+        elif container.name == 'a' and container.get('href'):
+            # Container itself is the link element
+            link = container.get('href')
+
+        if link and self.config.link_prefix and not link.startswith('http'):
+            link = self.config.link_prefix + link
 
         if not link:
             return None
@@ -238,7 +244,12 @@ class GenericCrawler:
         if date_selector:
             date_el = container.select_one(date_selector)
             if date_el:
-                raw_date = date_el.get_text(strip=True)
+                # 支持从属性获取日期 (如 datetime 属性)
+                date_attr = date_config.get('attribute')
+                if date_attr and date_el.get(date_attr):
+                    raw_date = date_el.get(date_attr)
+                else:
+                    raw_date = date_el.get_text(strip=True)
         elif date_config.get('pattern'):
             # Use regex pattern to find date in container text
             text = container.get_text()

@@ -1,0 +1,14 @@
+# SOSV - 深科技风险投资新闻
+name: "SOSV"
+enabled: true
+type: rss
+
+# RSS 配置
+rss:
+  urls:
+    - "https://sosv.com/feed/"
+
+# 文章内容选择器
+content:
+  selector: "article, div.entry-content"
+  paragraph_selector: "p"

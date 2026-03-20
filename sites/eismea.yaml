@@ -1,0 +1,22 @@
+# EISMEA - European Innovation Council and SMEs Executive Agency 新闻
+name: "EISMEA"
+enabled: true
+type: html
+
+# HTML 采集配置
+html:
+  url: "https://eismea.ec.europa.eu/news_en"
+  link_prefix: "https://eismea.ec.europa.eu"
+  selectors:
+    container: "article.ecl-content-item"
+    title: "div.ecl-content-block__title a"
+    link: "div.ecl-content-block__title a"
+    summary: "div.ecl-content-block__description p"
+  date:
+    selector: "time"
+    attribute: "datetime"
+
+# 文章内容选择器
+content:
+  selector: "article, .ecl-content-item__content-block"
+  paragraph_selector: "p"

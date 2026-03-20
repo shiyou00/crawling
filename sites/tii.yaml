@@ -1,0 +1,22 @@
+# TII - Technology Innovation Institute 新闻
+name: "TII"
+enabled: true
+type: html
+
+# HTML 采集配置
+html:
+  url: "https://www.tii.ae/news"
+  link_prefix: "https://www.tii.ae"
+  selectors:
+    container: "div.block-list-item"
+    title: "h4.card-title a"
+    link: "h4.card-title a"
+    date:
+      selector: "time"
+      format: "%d %b, %Y"
+      attribute: "datetime"
+
+# 文章内容选择器
+content:
+  selector: "article"
+  paragraph_selector: "p"

@@ -1,0 +1,20 @@
+# IBM Newsroom - Announcements
+name: "IBM Newsroom"
+enabled: true
+type: html
+
+html:
+  url: "https://newsroom.ibm.com/announcements"
+  link_prefix: "https://newsroom.ibm.com"
+  selectors:
+    container: "li.wd_item"
+    title: "div.wd_title a"
+    link: "div.wd_title a"
+    summary: "div.wd_summary"
+  date:
+    selector: "div.wd_date"
+    format: "%b %d, %Y"
+
+content:
+  selector: "div.wd_body"
+  paragraph_selector: "p"

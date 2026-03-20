@@ -1,0 +1,19 @@
+# NIST - News
+name: "NIST News"
+enabled: true
+type: html
+
+html:
+  url: "https://www.nist.gov/news-events/news"
+  link_prefix: "https://www.nist.gov"
+  selectors:
+    container: ".nist-teaser"
+    title: "h3.nist-teaser__title a span"
+    link: "h3.nist-teaser__title a"
+  date:
+    selector: "time"
+    format: "%B %d, %Y"
+
+content:
+  selector: "div.nist-page__content, article"
+  paragraph_selector: "p"

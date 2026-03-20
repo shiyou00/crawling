@@ -1,0 +1,22 @@
+# BioMADE - 生物制造新闻
+name: "BioMADE"
+enabled: true
+type: html
+
+# HTML 采集配置
+html:
+  url: "https://www.biomade.org/news"
+  link_prefix: "https://www.biomade.org"
+  selectors:
+    container: "article.blog-item"
+    title: "h1.blog-title a"
+    link: "h1.blog-title a"
+    summary: "div.blog-excerpt p"
+  date:
+    selector: "time.blog-date"
+    format: "%-m/%-d/%y"
+
+# 文章内容选择器
+content:
+  selector: "article.blog-item-content-wrapper"
+  paragraph_selector: "p"

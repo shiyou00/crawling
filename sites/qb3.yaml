@@ -1,0 +1,28 @@
+# QB3 - 加州大学生物技术新闻
+name: "QB3"
+enabled: true
+type: rss
+
+# RSS 配置 - 采集内部新闻
+rss:
+  urls:
+    - "https://qb3.org/feed/"
+
+# HTML 回退配置 - 采集 Company News（外部链接）
+html:
+  url: "https://qb3.org/news/"
+  link_prefix: ""
+  selectors:
+    container: "div.side-post"
+    title: "p.side-post__title a"
+    link: "p.side-post__title a"
+    summary: ""
+  date:
+    selector: "time.side-post__date"
+    attribute: "datetime"
+    format: "%m-%d-%Y"
+
+# 文章内容选择器
+content:
+  selector: "article, div.entry-content"
+  paragraph_selector: "p"

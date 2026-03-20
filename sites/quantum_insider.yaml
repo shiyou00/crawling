@@ -1,0 +1,19 @@
+# The Quantum Insider - Daily News
+name: "Quantum Insider"
+enabled: true
+type: html
+
+html:
+  url: "https://thequantuminsider.com/category/daily/"
+  selectors:
+    container: "article.elementor-post"
+    title: "h6.elementor-post__title a"
+    link: "a.elementor-post__thumbnail__link"
+    summary: "div.elementor-post__text"
+  date:
+    selector: "span.elementor-post-date"
+    format: "%B %d, %Y"
+
+content:
+  selector: "div.elementor-widget-text-editor"
+  paragraph_selector: "p"

@@ -1,21 +1,19 @@
 # Buffalo University - 新闻发布
 name: "Buffalo University"
 enabled: true
-type: html  # 无有效 RSS
+type: html
 
 html:
   url: "https://www.buffalo.edu/news/news-releases.html"
+  link_prefix: "https:"
   selectors:
-    container: "div.list-style-teaser-news"
-    title: "h3.teaser-title a"
-    link: "h3.teaser-title a"
-    date: "span.teaser-date"
+    container: "div.teaser-full.newspage"
+    title: "div.teaser-title span"
+    link: "a.teaser-primary-anchor"
   date:
-    format: "%m/%d/%y"  # 12/25/25
-  link_prefix: "https://www.buffalo.edu"  # 补全相对链接
+    selector: "span.teaser-date"
+    format: "%m/%d/%y"
 
-# 内容提取配置
 content:
   selector: "div.text.parbase.section"
   paragraph_selector: "p"
-  min_length: 50  # 过滤短段落

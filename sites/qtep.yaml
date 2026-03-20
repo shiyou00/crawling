@@ -1,0 +1,21 @@
+# QTEP - CSIC 新闻
+name: "QTEP"
+enabled: true
+type: html
+
+# HTML 采集配置
+html:
+  url: "https://qtep.csic.es/category/news"
+  selectors:
+    container: "li.wp-block-post"
+    title: "h2.wp-block-post-title a"
+    link: "h2.wp-block-post-title a"
+    summary: "p.wp-block-post-excerpt__excerpt"
+    date:
+      selector: "time"
+      attribute: "datetime"
+
+# 文章内容选择器
+content:
+  selector: "article, .entry-content"
+  paragraph_selector: "p"

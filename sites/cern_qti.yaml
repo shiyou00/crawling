@@ -1,0 +1,21 @@
+# CERN QTI - Quantum Technology Initiative 新闻
+name: "CERN QTI"
+enabled: true
+type: html
+
+# HTML 采集配置
+html:
+  url: "https://quantum.cern/index.php/news-events"
+  link_prefix: "https://quantum.cern"
+  selectors:
+    container: "div.view-news-landing-page div.views-row"
+    title: "div.preview-list-news-info h3 a"
+    link: "div.preview-list-news-info h3 a"
+  date:
+    selector: "div.preview-list-date"
+    format: "%d %B, %Y"
+
+# 文章内容选择器
+content:
+  selector: "article, .field--name-body"
+  paragraph_selector: "p"

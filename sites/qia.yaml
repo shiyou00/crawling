@@ -1,0 +1,22 @@
+# QIA - Quantum Internet Alliance 新闻
+name: "QIA"
+enabled: true
+type: html
+
+# HTML 采集配置
+html:
+  url: "https://quantuminternetalliance.org/news/"
+  link_prefix: "https://quantuminternetalliance.org"
+  selectors:
+    container: "a.c-card"
+    title: "h2"
+    link: ""
+    summary: "p"
+  date:
+    selector: "span.c-card__date"
+    format: "%d.%m.%Y"
+
+# 文章内容选择器
+content:
+  selector: "div.c-content"
+  paragraph_selector: "p"

@@ -1,0 +1,12 @@
+# SciTechDaily - Technology News
+name: "SciTechDaily"
+enabled: true
+type: rss
+
+rss:
+  urls:
+    - "https://scitechdaily.com/news/technology/feed/"
+
+content:
+  selector: "article, .entry-content, .post-content"
+  paragraph_selector: "p"

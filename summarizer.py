@@ -114,6 +114,246 @@ class ContentSummarizer:
                     paragraphs = article.find_all('p')
                     content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs])
 
+        # J-PARC
+        elif 'j-parc.jp' in url:
+            # J-PARC 内容在 div.main-contents 中
+            main_contents = soup.find('div', class_='main-contents')
+            if main_contents:
+                paragraphs = main_contents.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # ICON Build
+        elif 'iconbuild.com' in url:
+            # ICON Build 内容在 main.content 或 article 中
+            main_content = soup.find('main', class_='content') or soup.find('article')
+            if main_content:
+                paragraphs = main_content.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # BioMADE
+        elif 'biomade.org' in url:
+            # BioMADE 内容在 article 或 div.blog-item-content 中
+            article = soup.find('article') or soup.find('div', class_='blog-item-content-wrapper')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # BBEU (Bio Base Europe)
+        elif 'bbeu.org' in url:
+            # BBEU 内容在 div#content 或 article 中
+            main_content = soup.find('div', id='content') or soup.find('article')
+            if main_content:
+                paragraphs = main_content.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # QB3
+        elif 'qb3.org' in url:
+            # QB3 内容在 article 或 div.post-content 中
+            article = soup.find('article') or soup.find('div', class_='post-content')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # SOSV
+        elif 'sosv.com' in url:
+            # SOSV 内容在 article 或 div.entry-content 中
+            article = soup.find('article') or soup.find('div', class_='entry-content')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # TII
+        elif 'tii.ae' in url:
+            # TII 内容在 article 标签中
+            article = soup.find('article')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # QTEP (CSIC)
+        elif 'qtep.csic.es' in url:
+            # QTEP 内容在 article 或 div.entry-content 中
+            article = soup.find('article') or soup.find('div', class_='entry-content')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # QIA (Quantum Internet Alliance)
+        elif 'quantuminternetalliance.org' in url:
+            # QIA 内容在 div.c-content 中
+            content_div = soup.find('div', class_='c-content')
+            if content_div:
+                paragraphs = content_div.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # QIH (Quantum Technology Innovation Hubs - RIKEN)
+        elif 'qih.riken.jp' in url:
+            content = '[聚合页面] 请查看原文链接获取详细内容'
+
+        # CERN QTI (Quantum Technology Initiative)
+        elif 'quantum.cern' in url:
+            article = soup.find('div', class_='news-node-full-content-left') or soup.find('article') or soup.find('div', class_='field--name-body')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # QSIP (Quantum Sweden Innovation Platform)
+        elif 'qsip.se' in url:
+            # QSIP uses Oxygen builder, no standard article/entry-content
+            # Content is in p tags within the main content area
+            main_content = soup.find('main') or soup.find('article') or soup.find('div', class_='entry-content')
+            if main_content:
+                paragraphs = main_content.find_all('p')
+            else:
+                # Fallback: get all p tags from body
+                paragraphs = soup.find_all('p')
+            content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # EISMEA (European Innovation Council and SMEs Executive Agency)
+        elif 'eismea.ec.europa.eu' in url:
+            article = soup.find('article') or soup.find('div', class_='ecl-content-item__content-block')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # ANL (Argonne National Laboratory)
+        elif 'anl.gov' in url:
+            article = soup.find('article') or soup.find('div', class_='node__content') or soup.find('div', class_='field--name-body')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # SciTechDaily (WordPress + SmartMag theme)
+        elif 'scitechdaily.com' in url:
+            article = soup.find('div', class_='main-content') or soup.find('article')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # IBM Newsroom
+        elif 'newsroom.ibm.com' in url:
+            article = soup.find('div', class_='wd_body') or soup.find('div', class_='wd_content')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # The Quantum Insider
+        elif 'thequantuminsider.com' in url:
+            article = soup.find('div', class_='elementor-widget-theme-post-content') or soup.find('article')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # Data Center Dynamics
+        elif 'datacenterdynamics.com' in url:
+            article = soup.find('div', class_='main-content') or soup.find('article')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # NIST
+        elif 'nist.gov' in url:
+            article = soup.find('div', class_='nist-page__content') or soup.find('article')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # ============ 外部新闻站点 ============
+
+        # Wall Street Journal (WSJ)
+        elif 'wsj.com' in url:
+            # WSJ 文章内容在 article 或 div.article-content 中
+            article = soup.find('article') or soup.find('div', class_='article-content')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # OIST
+        elif 'oist.jp' in url:
+            article = soup.find('article') or soup.find('div', class_='news-content')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # RIKEN
+        elif 'riken.jp' in url:
+            article = soup.find('article') or soup.find('div', class_='news-detail') or soup.find('div', class_='content')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # AIST
+        elif 'aist.go.jp' in url:
+            article = soup.find('article') or soup.find('div', class_='content') or soup.find('div', class_='news-content')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # QST
+        elif 'qst.go.jp' in url:
+            article = soup.find('article') or soup.find('div', class_='content')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # NICT
+        elif 'nict.go.jp' in url:
+            article = soup.find('article') or soup.find('div', class_='content') or soup.find('div', class_='news-content')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # BusinessWire
+        elif 'businesswire.com' in url:
+            # BusinessWire 内容在 div.bw-release-story 中
+            article = soup.find('div', class_='bw-release-story') or soup.find('article')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # PR Newswire
+        elif 'prnewswire.com' in url:
+            # PRNewswire 内容在 div.release-body 或 article 中
+            article = soup.find('div', class_='release-body') or soup.find('section', class_='release-body') or soup.find('article')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # GlobeNewswire
+        elif 'globenewswire.com' in url:
+            article = soup.find('div', class_='main-body-container') or soup.find('article')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # BioSpace
+        elif 'biospace.com' in url:
+            article = soup.find('div', class_='article-body') or soup.find('article')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # Fierce Biotech
+        elif 'fiercebiotech.com' in url:
+            article = soup.find('div', class_='article-body') or soup.find('article')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # STAT News
+        elif 'statnews.com' in url:
+            article = soup.find('div', class_='entry-content') or soup.find('article')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
+        # Nature
+        elif 'nature.com' in url:
+            article = soup.find('div', class_='c-article-body') or soup.find('article')
+            if article:
+                paragraphs = article.find_all('p')
+                content = '\n\n'.join([p.get_text(strip=True) for p in paragraphs if len(p.get_text(strip=True)) > 30])
+
         # 通用方法：如果以上都没找到
         if not content:
             # 尝试查找 article 标签
@@ -213,6 +453,11 @@ class ContentSummarizer:
                 summary = self.generate_summary(full_content)
                 processed_item['summary'] = summary
                 logger.info(f"生成摘要: {summary[:100]}...")
+        else:
+            # 无法获取内容时，标注为外部链接
+            if not news_item.get('summary'):
+                processed_item['summary'] = "[外部链接] 内容需访问原文查看"
+            processed_item['external_link'] = True
 
         return processed_item
 

@@ -1,0 +1,21 @@
+# QSIP - Quantum Sweden Innovation Platform 新闻
+name: "QSIP"
+enabled: true
+type: html
+
+# HTML 采集配置
+html:
+  url: "https://qsip.se/news/"
+  selectors:
+    container: "div.oxy-dynamic-list > div.ct-div-block"
+    title: "a.ct-link h3.ct-headline span"
+    link: "a.ct-link"
+    summary: "a.ct-link div.c-text-dark.c-text-m span"
+  date:
+    selector: "a.ct-link div.c-tagline span"
+    format: "%B %d, %Y"
+
+# 文章内容选择器
+content:
+  selector: "article, .entry-content, .ct-div-block"
+  paragraph_selector: "p"

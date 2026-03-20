@@ -3,10 +3,12 @@
 翻译模块 - 使用 Google Translate API 进行英中翻译
 """
 import logging
+import asyncio
 from googletrans import Translator
 import time
 
 logger = logging.getLogger(__name__)
+
 
 class NewsTranslator:
     """新闻翻译器 - 将英文新闻翻译为中文"""
@@ -15,6 +17,29 @@ class NewsTranslator:
         """初始化翻译器"""
         self.translator = Translator()
         logger.info("翻译器初始化成功")
+
+    def _run_async(self, coro):
+        """运行异步协程"""
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        if loop.is_running():
+            # 如果已有事件循环在运行，创建新的
+            new_loop = asyncio.new_event_loop()
+            try:
+                return new_loop.run_until_complete(coro)
+            finally:
+                new_loop.close()
+        else:
+            return loop.run_until_complete(coro)
+
+    async def _translate_async(self, text, src='en', dest='zh-cn'):
+        """异步翻译"""
+        result = await self.translator.translate(text, src=src, dest=dest)
+        return result.text
 
     def translate_text(self, text, src='en', dest='zh-cn', retry=3):
         """
@@ -34,13 +59,20 @@ class NewsTranslator:
 
         for attempt in range(retry):
             try:
+                # 检查返回值是否为协程
                 result = self.translator.translate(text, src=src, dest=dest)
-                logger.debug(f"翻译成功: '{text[:50]}...' -> '{result.text[:50]}...'")
-                return result.text
+
+                # 如果是协程，使用异步方式处理
+                if asyncio.iscoroutine(result):
+                    result = self._run_async(result)
+
+                translated_text = result.text
+                logger.debug(f"翻译成功: '{text[:50]}...' -> '{translated_text[:50]}...'")
+                return translated_text
             except Exception as e:
                 logger.warning(f"翻译失败 (尝试 {attempt + 1}/{retry}): {e}")
                 if attempt < retry - 1:
-                    time.sleep(1)  # 等待 1 秒后重试
+                    time.sleep(1)
                 else:
                     logger.error(f"翻译最终失败，返回原文: {text[:50]}...")
                     return text
@@ -66,10 +98,6 @@ class NewsTranslator:
         # 翻译摘要
         if 'summary' in news_item and news_item['summary']:
             translated_item['summary_zh'] = self.translate_text(news_item['summary'])
-
-        # 翻译来源（如果需要）
-        # if 'source' in news_item:
-        #     translated_item['source_zh'] = self.translate_text(news_item['source'])
 
         return translated_item
 

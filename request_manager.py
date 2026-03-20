@@ -8,6 +8,7 @@ import logging
 import requests
 from requests.exceptions import RequestException, Timeout, ConnectionError
 
+import cloudscraper
 from http_config import UserAgents, HTTPDefaults
 from config import Config
 from exceptions import RequestError
@@ -51,6 +52,7 @@ class RequestManager:
 
         self._last_request_time = 0
         self._session = requests.Session()
+        self._cloudscraper_session = None
 
     def _get_headers(self):
         """Get request headers with optional UA rotation."""
@@ -73,6 +75,67 @@ class RequestManager:
         if response:
             return response.status_code in HTTPDefaults.RETRY_STATUS_CODES
         return False
+
+    def _get_cloudscraper_session(self):
+        """Get or create a cloudscraper session for Cloudflare bypass."""
+        if self._cloudscraper_session is None:
+            try:
+                scraper = cloudscraper.create_scraper()
+                self._cloudscraper_session = scraper
+                logger.info("cloudscraper session created for Cloudflare bypass")
+            except Exception as e:
+                logger.warning(f"Failed to create cloudscraper session: {e}")
+        return self._cloudscraper_session
+
+    def _try_cloudscraper(self, url):
+        """Try cloudscraper as Cloudflare bypass, return response or None."""
+        cs_session = self._get_cloudscraper_session()
+        if not cs_session:
+            return None
+        logger.info(f"Standard request blocked, trying cloudscraper: {url}")
+        try:
+            cs_response = cs_session.get(url, timeout=self.timeout)
+            if cs_response.status_code == 200:
+                self._last_request_time = time.time()
+                return cs_response
+            logger.warning(f"cloudscraper also failed with status {cs_response.status_code}")
+        except Exception as e:
+            logger.warning(f"cloudscraper request failed: {e}")
+        return None
+
+    def _try_playwright(self, url):
+        """Try Playwright headless browser as final Cloudflare bypass."""
+        try:
+            from playwright.sync_api import sync_playwright
+            from playwright_stealth import Stealth
+            logger.info(f"cloudscraper failed, trying Playwright headless browser: {url}")
+            stealth = Stealth()
+            with sync_playwright() as p:
+                browser = p.chromium.launch(
+                    headless=False,
+                    args=['--disable-blink-features=AutomationControlled']
+                )
+                context = browser.new_context()
+                stealth.apply_stealth_sync(context)
+                page = context.new_page()
+                page.goto(url, wait_until='domcontentloaded', timeout=60000)
+                # Wait for Cloudflare challenge to resolve
+                page.wait_for_function(
+                    "document.title !== 'Just a moment...'",
+                    timeout=30000
+                )
+                content = page.content()
+                browser.close()
+                class PlaywrightResponse:
+                    def __init__(self, text, status_code=200):
+                        self.text = text
+                        self.status_code = status_code
+                        self.content = text.encode('utf-8')
+                self._last_request_time = time.time()
+                return PlaywrightResponse(content)
+        except Exception as e:
+            logger.warning(f"Playwright bypass failed: {e}")
+        return None
 
     def get(self, url, **kwargs):
         """
@@ -111,6 +174,16 @@ class RequestManager:
 
                 if response.status_code == 200:
                     return response
+
+                # Cloudflare bypass: try cloudscraper then playwright on 403/503
+                if response.status_code in (403, 503):
+                    last_response = response
+                    cs_response = self._try_cloudscraper(url)
+                    if cs_response:
+                        return cs_response
+                    pw_response = self._try_playwright(url)
+                    if pw_response:
+                        return pw_response
 
                 if self._should_retry(response=response):
                     last_response = response
@@ -156,8 +229,10 @@ class RequestManager:
         raise RequestError(f"Request to {url} failed for unknown reason")
 
     def close(self):
-        """Close the underlying session."""
+        """Close the underlying sessions."""
         self._session.close()
+        if self._cloudscraper_session:
+            self._cloudscraper_session.close()
 
     def __enter__(self):
         return self

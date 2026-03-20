@@ -1,0 +1,22 @@
+# ICON Build - 3D打印建筑新闻
+name: "ICON Build"
+enabled: true
+type: html
+
+# HTML 采集配置
+html:
+  url: "https://www.iconbuild.com/newsroom"
+  link_prefix: "https://www.iconbuild.com"
+  selectors:
+    container: "article"
+    title: "h4 a.entry-link"
+    link: "h4 a.entry-link"
+    summary: ""
+  date:
+    selector: "div.mt-4.text-sm"
+    format: "%m.%d.%Y"
+
+# 文章内容选择器
+content:
+  selector: "main.content"
+  paragraph_selector: "p"

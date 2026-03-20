@@ -1,0 +1,22 @@
+# ANL Feature Stories - Argonne National Laboratory Feature Stories
+name: "ANL Features"
+enabled: true
+type: html
+
+# HTML 采集配置
+html:
+  url: "https://www.anl.gov/feature-stories"
+  link_prefix: "https://www.anl.gov"
+  selectors:
+    container: "article.teaser"
+    title: "h3.teaser__title a span"
+    link: "h3.teaser__title a"
+    summary: "div.teaser__desc div"
+  date:
+    selector: "div.teaser__meta span"
+    format: "%B %d, %Y"
+
+# 文章内容选择器（与 ANL Press Releases 相同）
+content:
+  selector: "article, .node__content, .field--name-body"
+  paragraph_selector: "p"

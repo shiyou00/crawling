@@ -1,0 +1,12 @@
+# Data Center Dynamics - News
+name: "DCD News"
+enabled: true
+type: rss
+
+rss:
+  urls:
+    - "https://www.datacenterdynamics.com/en/rss/news"
+
+content:
+  selector: "div.main-content"
+  paragraph_selector: "p"

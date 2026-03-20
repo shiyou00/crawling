@@ -178,6 +178,217 @@ class NewsAggregator:
         print(f"\n结果已保存到: {filepath}")
         return filepath
 
+    def save_to_html(self, data: Dict, filename: str = None):
+        """保存结果到 HTML 文件"""
+        if filename is None:
+            date_str = data['date'].replace('-', '')
+            filename = f"news_{date_str}.html"
+
+        filepath = os.path.join(self.output_dir, filename)
+
+        html_content = self._generate_html(data)
+
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+
+        print(f"HTML 结果已保存到: {filepath}")
+        return filepath
+
+    def _generate_html(self, data: Dict) -> str:
+        """生成 HTML 内容"""
+        news_cards = ""
+        for news in data['news']:
+            title_en = news['title']
+            title_zh = news.get('title_zh', '')
+            summary_en = news.get('summary', '')
+            summary_zh = news.get('summary_zh', '')
+
+            # 中文标题部分
+            title_zh_html = f'<p class="title-zh">{title_zh}</p>' if title_zh else ""
+
+            # 摘要部分：同时显示中英文
+            summary_html = ""
+            if summary_zh:
+                summary_html += f'<div class="summary-block"><span class="lang-tag">中文</span><p class="news-summary">{summary_zh}</p></div>'
+            if summary_en:
+                summary_html += f'<div class="summary-block"><span class="lang-tag en">English</span><p class="news-summary original">{summary_en}</p></div>'
+            if not summary_html:
+                summary_html = '<p class="news-summary">暂无摘要</p>'
+
+            news_cards += f'''
+            <div class="news-card">
+                <span class="source-tag">{news['source']}</span>
+                <h2 class="news-title">
+                    <a href="{news['link']}" target="_blank">{title_en}</a>
+                </h2>
+                {title_zh_html}
+                <p class="news-date">📅 {news['date']}</p>
+                {summary_html}
+            </div>
+            '''
+
+        source_stats = ""
+        for source, count in data['news_by_source'].items():
+            source_stats += f'<span class="stat-item">{source}: {count} 条</span>'
+
+        html = f'''<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新闻采集 - {data['date']}</title>
+    <style>
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }}
+        .container {{
+            max-width: 900px;
+            margin: 0 auto;
+        }}
+        .header {{
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }}
+        .header h1 {{
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }}
+        .meta-info {{
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }}
+        .stats {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }}
+        .stat-item {{
+            background: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #555;
+        }}
+        .news-card {{
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }}
+        .news-card:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }}
+        .source-tag {{
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }}
+        .news-title {{
+            font-size: 18px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }}
+        .news-title a {{
+            color: #333;
+            text-decoration: none;
+        }}
+        .news-title a:hover {{
+            color: #667eea;
+        }}
+        .title-zh {{
+            font-size: 16px;
+            color: #e74c3c;
+            margin-bottom: 10px;
+            font-weight: 500;
+            padding-left: 10px;
+            border-left: 3px solid #e74c3c;
+        }}
+        .news-date {{
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 12px;
+        }}
+        .summary-block {{
+            margin-bottom: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }}
+        .lang-tag {{
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }}
+        .lang-tag.en {{
+            background: #3498db;
+        }}
+        .news-summary {{
+            font-size: 15px;
+            color: #555;
+            line-height: 1.6;
+            margin: 0;
+        }}
+        .news-summary.original {{
+            color: #777;
+            font-style: italic;
+        }}
+        .footer {{
+            text-align: center;
+            color: white;
+            padding: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📰 新闻采集报告</h1>
+            <div class="meta-info">
+                <p>📅 日期: {data['date']} | ⏰ 采集时间: {data['crawl_time']} | 📊 共 {data['total_count']} 条新闻</p>
+            </div>
+            <div class="stats">
+                {source_stats}
+            </div>
+        </div>
+
+        {news_cards}
+
+        <div class="footer">
+            Powered by News Crawler
+        </div>
+    </div>
+</body>
+</html>'''
+        return html
+
     def print_summary(self, data: Dict):
         """打印采集摘要"""
         print("\n" + "=" * 60)
@@ -291,6 +502,7 @@ def main():
     # 保存结果
     if not args.no_save:
         aggregator.save_to_json(result)
+        aggregator.save_to_html(result)
 
 
 if __name__ == "__main__":
